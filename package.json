@@ -1,0 +1,18 @@
+{
+  "name": "notesgo",
+  "version": "1.0.0",
+  "description": "São carregados em src/Application.php ### BootstrapUI Estilizações avançados com o Bootstrap",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "sass": "sass --watch webroot/scss/global.scss:webroot/css/global.css"
+    },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "sass": "^1.88.0"
+  }
+}

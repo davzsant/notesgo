@@ -26,11 +26,14 @@ class AuthController extends AppController
 
     /**
      * Função que cria o usuario no banco de Dados
-     * @return void
      */
     public function create()
     {
-
+        $request_body = $this->request->getData();
+        dd($request_body);
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(json_encode($request_body));
     }
 
     /**
