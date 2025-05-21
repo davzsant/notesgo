@@ -5,14 +5,18 @@ use Migrations\BaseMigration;
 
 class Post extends BaseMigration
 {
-    /**
-     * Change Method.
-     *
-     * More information on this method is available here:
-     * https://book.cakephp.org/migrations/4/en/migrations.html#the-change-method
-     * @return void
-     */
     public function change(): void
     {
+        $this->table('post')
+            ->addColumn('user_id', 'integer', ['null' => false])
+            ->addColumn('title', 'string', ['limit' => 255, 'null' => false])
+            ->addColumn('subtitle', 'string', ['limit' => 525, 'null' => false])
+            ->addColumn('content', 'text')
+            ->addTimestamps()
+            ->addForeignKey('user_id', 'user', 'id', [
+                'delete'=> 'CASCADE', // se um user for deletado, os posts também
+                'update'=> 'NO_ACTION'
+            ])
+            ->create();
     }
 }

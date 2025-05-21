@@ -3,97 +3,64 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Model\Table\PostTable;
+use Exception;
+
 /**
  * Post Controller
  *
  */
 class PostController extends AppController
 {
+    protected PostTable $Post;
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->Post = $this->getTableLocator()->get('Post');
+    }
+
     /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null|void Renders view
+     * Listagem de Posts sem um algoritmo, apenas por ID
+     * @return void
      */
     public function index()
     {
-        $query = $this->Post->find();
-        $post = $this->paginate($query);
-
-        $this->set(compact('post'));
+        if(!$this->request->getSession()->read('user_id')){
+            $this->Flash->error('O Usuario precisa estar logado');
+            return $this->redirect(['controller' => 'Auth' ,'action' => 'index']);
+        }
+        $posts = $this->Post->find()->limit(10)->orderByDesc('id');
+        $posts_paginated = $this->paginate($posts);
+        $this->set('posts', $posts_paginated);
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id Post id.
-     * @return \Cake\Http\Response|null|void Renders view
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
+    public function create()
     {
-        $post = $this->Post->get($id, contain: []);
-        $this->set(compact('post'));
-    }
-
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
-     */
-    public function add()
-    {
-        $post = $this->Post->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $post = $this->Post->patchEntity($post, $this->request->getData());
-            if ($this->Post->save($post)) {
-                $this->Flash->success(__('The post has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
+        try{
+            $data = $this->request->getData();
+            $user_id = $this->request->getSession()->read('user_id');
+            if(!$user_id){
+                $this->Flash->error('O Usuario precisa estar logado');
+                return $this->redirect(['controller' => 'Auth' ,'action' => 'index']);
             }
-            $this->Flash->error(__('The post could not be saved. Please, try again.'));
+            $post = $this->Post->newEmptyEntity();
+            $post = $this->Post->patchEntity($post, [
+                ...$data,
+                'user_id' => $user_id
+            ]);
+            $this->Post->saveOrFail($post);
+            $this->Flash->success('Post Criado com Sucesso');
+            return $this->redirect(['action' => 'index']);
         }
-        $this->set(compact('post'));
+        catch(Exception $error)
+        {
+            $this->Flash->error($error->getMessage());
+            return $this->redirect(['action' => 'index']);
+        }
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Post id.
-     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function edit($id = null)
+    public function createPost()
     {
-        $post = $this->Post->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $post = $this->Post->patchEntity($post, $this->request->getData());
-            if ($this->Post->save($post)) {
-                $this->Flash->success(__('The post has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The post could not be saved. Please, try again.'));
-        }
-        $this->set(compact('post'));
-    }
-
-    /**
-     * Delete method
-     *
-     * @param string|null $id Post id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function delete($id = null)
-    {
-        $this->request->allowMethod(['post', 'delete']);
-        $post = $this->Post->get($id);
-        if ($this->Post->delete($post)) {
-            $this->Flash->success(__('The post has been deleted.'));
-        } else {
-            $this->Flash->error(__('The post could not be deleted. Please, try again.'));
-        }
-
-        return $this->redirect(['action' => 'index']);
     }
 }

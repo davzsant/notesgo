@@ -19,7 +19,7 @@
 
 </head>
 <body>
-
+    <?= $this->element('layout/header/index') ?>
     <main class="main">
         <div class="container">
             <?= $this->Flash->render() ?>

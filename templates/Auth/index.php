@@ -1,6 +1,6 @@
 
 <?= $this->Form->create() ?>
-    <?= $this->Form->control('email') ?>
+    <?= $this->Form->control('email', ['default' => $email]) ?>
     <?= $this->Form->control('password') ?>
     <?= $this->Form->submit('Entrar') ?>
 <?= $this->Form->end() ?>
