@@ -3,97 +3,46 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Model\Table\PostTable;
+
 /**
  * User Controller
  *
  */
 class UserController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null|void Renders view
-     */
-    public function index()
-    {
-        $query = $this->User->find();
-        $user = $this->paginate($query);
+    protected PostTable $Post;
 
-        $this->set(compact('user'));
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->Post = $this->getTableLocator()->get('Post');
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id User id.
-     * @return \Cake\Http\Response|null|void Renders view
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
+    public function profile()
     {
-        $user = $this->User->get($id, contain: []);
-        $this->set(compact('user'));
-    }
-
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
-     */
-    public function add()
-    {
-        $user = $this->User->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $user = $this->User->patchEntity($user, $this->request->getData());
-            if ($this->User->save($user)) {
-                $this->Flash->success(__('The user has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
+        $user_id = $this->request->getSession()->read('user_id');
+        if(!$user_id){
+            $this->Flash->error('O Usuario precisa estar autenticado');
+            return $this->redirect(['controller' => 'Auth', 'action' => 'login']);
         }
-        $this->set(compact('user'));
-    }
-
-    /**
-     * Edit method
-     *
-     * @param string|null $id User id.
-     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $user = $this->User->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $user = $this->User->patchEntity($user, $this->request->getData());
-            if ($this->User->save($user)) {
-                $this->Flash->success(__('The user has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
-        }
-        $this->set(compact('user'));
-    }
-
-    /**
-     * Delete method
-     *
-     * @param string|null $id User id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function delete($id = null)
-    {
-        $this->request->allowMethod(['post', 'delete']);
-        $user = $this->User->get($id);
-        if ($this->User->delete($user)) {
-            $this->Flash->success(__('The user has been deleted.'));
-        } else {
-            $this->Flash->error(__('The user could not be deleted. Please, try again.'));
+        $user = $this->User->find()
+            ->contain(['Post'])
+            ->where(['User.id' => $user_id])
+            ->first();
+         if(!$user){
+            $this->Flash->error('O Usuario precisa estar autenticado');
+            return $this->redirect(['controller' => 'Auth', 'action' => 'index']);
         }
 
-        return $this->redirect(['action' => 'index']);
+        $count = $this->Post->find()->where(['user_id' => $user_id])->count();
+        $post =  $this->Post->find()->where(['user_id' => $user_id])->order('RAND()')->first();
+
+
+        $this->set('user', $user);
+        $this->set('post', $post);
+        $this->set('posts_count', $count);
     }
+
+
 }

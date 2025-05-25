@@ -47,7 +47,7 @@ class PostTable extends Table
 
         $this->addBehavior('Timestamp');
 
-        $this->belongsTo('Users', [
+        $this->belongsTo('User', [
             'foreignKey' => 'user_id',
             'className' => 'User',
             'joinType' => 'INNER',

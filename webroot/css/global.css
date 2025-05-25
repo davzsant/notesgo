@@ -13,4 +13,9 @@ input {
   outline: none !important;
 }
 
+main {
+  overflow-x: hidden;
+  padding: 5%;
+}
+
 /*# sourceMappingURL=global.css.map */

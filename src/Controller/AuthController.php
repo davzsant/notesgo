@@ -3,9 +3,11 @@
 namespace App\Controller;
 use App\Controller\AppController;
 use App\Model\Table\UserTable;
-use Cake\ORM\TableRegistry;
 use Exception;
 
+/**
+ * Cuida das paginas de Login / Registro de Usuario / Esquecimento de Conta
+ */
 class AuthController extends AppController
 {
     protected UserTable $User;
@@ -15,90 +17,108 @@ class AuthController extends AppController
         $this->User = $this->getTableLocator()->get('User');
     }
     /**
+     * Meotodo GET
      * Pagina inicial para fazer o login
-     * @return void
+     * Retorna um Template
      */
     public function index()
     {
-        $this->set([
-            'email' => $this->request->getQueryParams('email')['email'] ?? ''
-        ]);
-    }
-
-    /**
-     * Pagina de criação de Usuario
-     * @return void
-     */
-    public function register()
-    {
-        $this->set([
-            'email' => $this->request->getQueryParams('email')['email'] ?? ''
-        ]);
-    }
-
-    public function login()
-    {
-        $data = $this->request->getData();
-        if(!$this->User->exists(['email' => $data['email']])){
-            $this->Flash->warning('Esta conta não existe, crie uma nova conta');
-            return $this->redirect(['action' => 'register',
-            '?' => [
-                'email' => $data['email']
-            ]]);
-        }
-
-        $user = $this->User->find()->where(['email' => $data['email']])->first();
-        if($user->password !== $data['password'])
+        if($this->request->getMethod() == 'POST')
         {
-            $this->Flash->warning('Senha incorreta');
-            return $this->redirect(['action' => 'index',
-            '?' => [
-                'email' => $data['email']
-            ]]);
-        }
-        $this->Flash->success('Login realizado com Sucesso');
-        $this->request->getSession()->write('user_id', $user->id);
-        return $this->redirect(['controller' => 'Pages' , 'action' => 'index']);
-    }
-
-    /**
-     * Função que cria o usuario no banco de Dados
-     */
-    public function create()
-    {
-        try{
             $data = $this->request->getData();
-
-            if($this->User->exists(['email' => $data['email']])){
-                $this->Flash->warning('Esta conta já existe, faça login');
-                return $this->redirect(['action' => 'index',
+            if(!$this->User->exists(['email' => $data['email']])){
+                $this->Flash->warning('Esta conta não existe, crie uma nova conta');
+                return $this->redirect(['action' => 'register',
                 '?' => [
                     'email' => $data['email']
                 ]]);
             }
 
-            $user = $this->User->newEmptyEntity();
-
-            $user = $this->User->patchEntity($user, [
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'password' => $data['password']
-            ]);
-            $this->User->saveOrFail($user);
-            $this->Flash->success('Usuario criado com scesso');
+            $user = $this->User->find()->where(['email' => $data['email']])->first();
+            if($user->password !== $data['password'])
+            {
+                $this->Flash->warning('Senha incorreta');
+                return $this->redirect(['action' => 'index',
+                '?' => [
+                    'email' => $data['email']
+                ]]);
+            }
+            $this->Flash->success('Login realizado com Sucesso');
             $this->request->getSession()->write('user_id', $user->id);
             return $this->redirect(['controller' => 'Pages' , 'action' => 'index']);
         }
-        catch(Exception $error)
-        {
-            $this->Flash->error('Houve um erro no criação do Usuario');
-            return $this->redirect(['controller' => 'Auth' , 'action' => 'index']);
-        }
+        $this->set([
+            'email' => $this->request->getQueryParams('email')['email'] ?? ''
+        ]);
     }
 
     /**
-     * Pagina de Criação de Senha
-     * @return void
+     * GET
+     * Pagina de criação de Usuario
+     * Retorno um Template
+     */
+    public function register()
+    {
+        if($this->request->getMethod() == 'POST')
+        {
+            try{
+                $data = $this->request->getData();
+
+                if($this->User->exists(['email' => $data['email']])){
+                    $this->Flash->warning('Esta conta já existe, faça login');
+                    return $this->redirect(['action' => 'index',
+                    '?' => [
+                        'email' => $data['email']
+                    ]]);
+                }
+
+                $user = $this->User->newEmptyEntity();
+
+                $user = $this->User->patchEntity($user, [
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'password' => $data['password']
+                ]);
+                $this->User->saveOrFail($user);
+                $this->Flash->success('Usuario criado com scesso');
+                $this->request->getSession()->write('user_id', $user->id);
+                return $this->redirect(['controller' => 'Pages' , 'action' => 'index']);
+            }
+            catch(Exception $error)
+            {
+                $this->Flash->error('Houve um erro no criação do Usuario');
+                return $this->redirect(['controller' => 'Auth' , 'action' => 'index']);
+            }
+        }
+        $this->set([
+            'email' => $this->request->getQueryParams('email')['email'] ?? ''
+        ]);
+    }
+
+    /**
+     * Metodo POST
+     * Realiza o Login do Usuario com base nas suas credenciais
+     * Redireciona para a Pagina Correta
+     */
+    public function login()
+    {
+
+    }
+
+    /**
+     * Metodo POST
+     * Cria um Usuario se não existir um outro usuario com o mesmo Email
+     * Redireciona para a Pagina Correta
+     */
+    public function create()
+    {
+
+    }
+
+    /**
+     * Metodo GET
+     * Pagina de Esquecimento de Senha
+     * Retorna um Template
      */
     public function forgetPassword()
     {

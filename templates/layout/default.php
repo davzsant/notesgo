@@ -21,10 +21,8 @@
 <body>
     <?= $this->element('layout/header/index') ?>
     <main class="main">
-        <div class="container">
-            <?= $this->Flash->render() ?>
-            <?= $this->fetch('content') ?>
-        </div>
+        <?= $this->Flash->render() ?>
+        <?= $this->fetch('content') ?>
     </main>
 
     <!--CDN de Instalação de Scripts e Estilos do Bootstrap -->

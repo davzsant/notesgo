@@ -1,5 +1,5 @@
 
-<?= $this->Form->create(null, ['id' => 'create_account_form']); ?>
+<?= $this->Form->create(null,['controller' => 'Auth', 'action' => 'register'], ['id' => 'create_account_form']); ?>
     <?= $this->Form->control('name', ['class' => 'required', 'label' => 'Nome']); ?>
     <?= $this->Form->control('email', ['class' => 'required email', 'default' => $email ]); ?>
     <?= $this->Form->control('password', ['class' => 'required', 'label' => 'Senha']); ?>

@@ -10,7 +10,7 @@
                     <?= $this->Html->link('Postagens', ['controller' => 'Post', 'action' => 'index'], ['class' => 'text-white nav-link']); ?>
                 </li>
                 <li class="nav-item">
-                    <?= $this->Html->link('Perfis', ['controller' => 'User', 'action' => 'view'],['class' => 'text-white nav-link']); ?>
+                    <?= $this->Html->link('Perfis', ['controller' => 'User', 'action' => 'profile'],['class' => 'text-white nav-link']); ?>
                 </li>
             </ul>
         </nav>
